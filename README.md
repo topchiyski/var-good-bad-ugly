@@ -5,7 +5,10 @@ This repository is a complementary resource to my LinkedIn article [Why Your Jav
 ## Prerequisites
 
 - JDK 21 or later
-- Maven 3.6.3 or later
+- Internet access on the first run to download Maven and dependencies
+- On Windows, set `JAVA_HOME` to your JDK installation directory
+
+The Maven Wrapper downloads Maven automatically; a separate Maven installation is not required.
 
 ## What's Inside
 
@@ -26,18 +29,24 @@ Each test puts the problem (`BAD`, `TRAP`) next to the fix (`GOOD`, `SENIOR PATT
 
 Run all tests:
 ```bash
-mvn clean test
+./mvnw clean test
 ```
 
 Run one example:
 ```bash
-mvn test -Dtest=PrimitiveOverloadTrapTest
+./mvnw test -Dtest=PrimitiveOverloadTrapTest
 ```
 
 Compare the bytecode of the explicit and `var` versions:
 ```bash
-mvn compile
+./mvnw compile
 javap -v -c target/classes/com/acme/mechanics/BytecodeParityDemo.class
+```
+
+On Windows, use `.\mvnw.cmd` instead of `./mvnw`, for example:
+
+```powershell
+.\mvnw.cmd clean test
 ```
 
 ## Contact
