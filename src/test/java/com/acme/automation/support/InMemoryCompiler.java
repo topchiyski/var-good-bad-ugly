@@ -9,6 +9,7 @@ import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.net.URI;
 import java.nio.file.Files;
+import java.util.Comparator;
 import java.util.List;
 
 /**
@@ -42,8 +43,20 @@ public final class InMemoryCompiler {
         };
         try {
             var outputDir = Files.createTempDirectory("snippet-classes");
-            compiler.getTask(null, null, diagnostics,
-                    List.of("-d", outputDir.toString(), "-proc:none"), null, List.of(file)).call();
+            try {
+                compiler.getTask(null, null, diagnostics,
+                        List.of("-d", outputDir.toString(), "-proc:none"), null, List.of(file)).call();
+            } finally {
+                try (var paths = Files.walk(outputDir)) {
+                    paths.sorted(Comparator.reverseOrder()).forEach(path -> {
+                        try {
+                            Files.delete(path);
+                        } catch (IOException e) {
+                            throw new UncheckedIOException(e);
+                        }
+                    });
+                }
+            }
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
