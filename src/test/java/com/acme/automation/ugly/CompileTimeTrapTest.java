@@ -99,6 +99,38 @@ class CompileTimeTrapTest {
     }
 
     @Test
+    void scopeLeakage_HashSetHasNoLastElement() {
+        // TRAP: far from its declaration, var hides that auditIds is a HashSet, which has no order
+        var errors = compileErrors("""
+                import java.util.*;
+                class Snippet {
+                    void f() {
+                        var auditIds = new HashSet<>(List.of("ORD-1", "ORD-2"));
+                        auditIds.getLast();
+                    }
+                }
+                """);
+
+        assertThat(errors).containsExactly("compiler.err.cant.resolve.location.args");
+    }
+
+    @Test
+    void scopeLeakage_OrderedTypeHasLastElement() {
+        // FIX: a SequencedCollection such as ArrayList keeps insertion order and has getLast()
+        var errors = compileErrors("""
+                import java.util.*;
+                class Snippet {
+                    void f() {
+                        var orderedAuditIds = new ArrayList<>(List.of("ORD-1", "ORD-2"));
+                        orderedAuditIds.getLast();
+                    }
+                }
+                """);
+
+        assertThat(errors).isEmpty();
+    }
+
+    @Test
     void contextualKeyword_VarIsALegalName() {
         // var is a contextual keyword: fields, methods and locals may still be called var
         var errors = compileErrors("""

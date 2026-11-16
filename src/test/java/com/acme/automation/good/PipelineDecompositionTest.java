@@ -33,12 +33,10 @@ class PipelineDecompositionTest {
      */
     @Test
     void verifyTopError_JuniorTrap_MonolithicChain() {
-        List<AuditLogDto> logs = fetchLogs();
-
         // JUNIOR TRAP: Chaining everything into a single statement just to avoid
         // declaring intermediate Map<String, Long> and Optional<Map.Entry<String, Long>> types.
         assertThat(
-                logs.stream()
+                fetchLogs().stream()
                         .filter(l -> "FAILED".equals(l.status()))
                         .collect(groupingBy(AuditLogDto::errorCode, counting()))
                         .entrySet().stream()

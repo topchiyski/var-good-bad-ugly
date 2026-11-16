@@ -6,6 +6,7 @@ import org.junit.jupiter.api.Test;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.SequencedCollection;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -38,13 +39,6 @@ class ReadabilityAndScopeTest {
         return new OrderBatchResult(200, id);
     }
 
-    /**
-     * Opaque, and without arguments there is nothing to hint at the result type.
-     */
-    private OrderBatchResult processData() {
-        return new OrderBatchResult(200, "BATCH-1");
-    }
-
     // Descriptive helper names (senior pattern)
 
     /**
@@ -59,20 +53,6 @@ class ReadabilityAndScopeTest {
      */
     private WebElement waitForVisibleElement(By locator) {
         return new MockWebElement("button", "Submit");
-    }
-
-    /**
-     * Submits the order with the given id.
-     */
-    private OrderBatchResult submitOrderById(String id) {
-        return new OrderBatchResult(200, id);
-    }
-
-    /**
-     * Returns the open modal dialog.
-     */
-    private WebElement getActiveModal() {
-        return new MockWebElement("div", "Modal");
     }
 
     /**
@@ -104,30 +84,42 @@ class ReadabilityAndScopeTest {
         // or explicit types are preserved when calling an opaque method like processData().
         var checkoutBtnLocator = buildTestIdLocator("checkout-btn");
         var checkoutSubmitBtn = waitForVisibleElement(checkoutBtnLocator);
-        var orderSubmissionResponse = submitOrderById(checkoutSubmitBtn.getAttribute("data-id"));
+        OrderBatchResult batchResult = processData(checkoutSubmitBtn.getAttribute("data-id"));
 
-        OrderBatchResult explicitResultFromOpaqueHelper = processData();
-
-        assertThat(orderSubmissionResponse.statusCode()).isEqualTo(200);
-        assertThat(explicitResultFromOpaqueHelper.statusCode()).isEqualTo(200);
+        assertThat(batchResult.statusCode()).isEqualTo(200);
     }
 
     /**
-     * Bad vs. good: declare {@code var} next to its usage, so the collection type and its
-     * ordering stay visible.
+     * Bad: a {@code var} declared far from its use hides, at the point of use, that the
+     * collection is a {@link HashSet}, which has no defined order.
      */
     @Test
-    void scopeLeakage_JuniorTrap_Vs_SeniorTightScope() {
-        // JUNIOR TRAP: Declaring 'var items = new HashSet<>(...)' far above usage
-        // hides the loss of insertion order.
-        var juniorItems = new HashSet<>(fetchIds());
-        juniorItems.add("FINAL_AUDIT_ORDER");
+    void scopeLeakage_JuniorTrap_DeclaredFarFromUse() {
+        // JUNIOR TRAP: declared at the top of the test...
+        var auditIds = new HashSet<>(fetchIds());
 
-        // SENIOR PATTERN:
-        // Declare local variables immediately adjacent to their usage with clear collection semantics.
-        var orderedAuditIds = new ArrayList<String>(fetchIds());
+        var checkoutBtnLocator = buildTestIdLocator("checkout-btn");
+        var checkoutSubmitBtn = waitForVisibleElement(checkoutBtnLocator);
+        OrderBatchResult batchResult = processData(checkoutSubmitBtn.getAttribute("data-id"));
+        assertThat(batchResult.statusCode()).isEqualTo(200);
+
+        // ...and used here, where nothing on screen says "HashSet". The reader expects
+        // FINAL_AUDIT_ORDER to be the last audit id, but a HashSet has no "last":
+        // auditIds.getLast() would not even compile (CompileTimeTrapTest proves it).
+        auditIds.add("FINAL_AUDIT_ORDER");
+
+        assertThat(auditIds).isNotInstanceOf(SequencedCollection.class);
+    }
+
+    /**
+     * Good: declare the {@code var} next to its use, with a type that keeps insertion order.
+     */
+    @Test
+    void scopeLeakage_SeniorPattern_TightScopeOrderedType() {
+        var orderedAuditIds = new ArrayList<>(fetchIds());
         orderedAuditIds.add("FINAL_AUDIT_ORDER");
 
-        assertThat(orderedAuditIds).endsWith("FINAL_AUDIT_ORDER");
+        assertThat(orderedAuditIds.getLast()).isEqualTo("FINAL_AUDIT_ORDER");
+        assertThat(orderedAuditIds).containsExactly("ORD-1", "ORD-2", "FINAL_AUDIT_ORDER");
     }
 }
