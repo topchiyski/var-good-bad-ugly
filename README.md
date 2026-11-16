@@ -27,7 +27,7 @@ The Maven Wrapper downloads Maven automatically; a separate Maven installation i
 | `test/.../ugly/CompileTimeTrapTest.java` | Runs javac on snippets to prove which traps compile silently and which are rejected |
 | `test/.../mechanics/BytecodeParityTest.java` | Runs javap and asserts both `BytecodeParityDemo` methods compile to identical bytecode |
 
-Each test puts the problem (`BAD`, `TRAP`) next to the fix (`GOOD`, `SENIOR PATTERN`). `TestMocks` provides simple stand-ins for Selenium and RestAssured so everything runs without a browser or server; don't treat them as a reference for the real APIs.
+Each example puts the problem (`BAD`, `TRAP`, `JUNIOR TRAP`) next to the fix (`GOOD`, `FIX`, `SENIOR PATTERN`). `CompileTimeTrapTest` and `BytecodeParityTest` check the compile-time and bytecode claims automatically. `TestMocks` provides simple stand-ins for Selenium and RestAssured so everything runs without a browser or server; don't treat them as a reference for the real APIs.
 
 ## Running
 
@@ -35,6 +35,8 @@ Run all tests:
 ```bash
 ./mvnw clean test
 ```
+
+Expected result: `Tests run: 24, Failures: 0, Errors: 0, Skipped: 0` and `BUILD SUCCESS`.
 
 Run one example:
 ```bash
