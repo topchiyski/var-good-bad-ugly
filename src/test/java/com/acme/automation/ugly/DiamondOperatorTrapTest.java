@@ -48,15 +48,15 @@ class DiamondOperatorTrapTest {
     @Test
     void diamondOperatorSafe_SeniorPattern_ExplicitRhsOrConstructorArg() {
         // Option 1: Put the explicit generic type on the right-hand constructor
-        var activeElements = new ArrayList<WebElement>();
-        activeElements.add(driver.findElement(By.id("row-1")));
-        // activeElements.add(By.id("row-2")); // <-- Caught immediately at compile time!
+        var safeElements = new ArrayList<WebElement>();
+        safeElements.add(driver.findElement(By.id("row-1")));
+        // safeElements.add(By.id("row-2")); // <-- Caught immediately at compile time!
 
         // Option 2: Pass a typed collection to the constructor so '<>' infers WebElement
         List<WebElement> rows = driver.findElements(By.cssSelector("tr"));
         var copiedElements = new ArrayList<>(rows);
 
-        assertThat(activeElements).hasSize(1);
+        assertThat(safeElements).hasSize(1);
         assertThat(copiedElements).hasSize(2).allMatch(WebElement::isDisplayed);
     }
 }

@@ -18,11 +18,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 class BoilerplateEliminationTest {
 
     /**
-     * Driver for the UI steps.
-     */
-    private final WebDriver driver = new MockWebDriver();
-
-    /**
      * Authorization spec for the API request.
      */
     private final String authSpec = "Bearer token";
@@ -33,6 +28,7 @@ class BoilerplateEliminationTest {
     @Test
     void verifyOrdersExplicit_Before() {
         ChromeOptions opts = new ChromeOptions();
+        WebDriver driver = new MockWebDriver(opts);
         WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
 
         // Nested generic noise obscures the variable name
@@ -48,7 +44,6 @@ class BoilerplateEliminationTest {
                 visibilityOfElementLocated(By.cssSelector("[data-region='eu']"))
         );
 
-        assertThat(opts).isNotNull();
         assertThat(euHeader.getText()).contains("EU Region");
         assertThat(ordersByRegion.get("EU")).isNotEmpty();
     }
@@ -59,6 +54,9 @@ class BoilerplateEliminationTest {
     @Test
     void verifyOrdersInferred_After() {
         var opts = new ChromeOptions();
+        // Infers MockWebDriver, the concrete class, just as var infers ChromeDriver for
+        // new ChromeDriver(opts). Fine for a local; use WebDriver where you pass it around.
+        var driver = new MockWebDriver(opts);
         var wait = new WebDriverWait(driver, Duration.ofSeconds(10));
 
         // Domain variable name stands out cleanly while TypeRef supplies the exact type
@@ -74,7 +72,6 @@ class BoilerplateEliminationTest {
                 visibilityOfElementLocated(By.cssSelector("[data-region='eu']"))
         );
 
-        assertThat(opts).isNotNull();
         assertThat(euRegionHeaderElement.getText()).contains("EU Region");
         assertThat(ordersByRegion.get("EU")).isNotEmpty();
     }
