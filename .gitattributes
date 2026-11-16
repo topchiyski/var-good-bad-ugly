@@ -1,0 +1,11 @@
+# Store text files with LF line endings.
+* text=auto
+
+# The Unix wrapper must keep LF, or ./mvnw fails with "bad interpreter" on Linux and macOS.
+mvnw text eol=lf
+
+# Windows batch files need CRLF. They are stored with CRLF (Dependabot writes them that way),
+# so Git must not convert them in either direction.
+*.cmd -text
+
+*.jar binary
