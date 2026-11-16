@@ -188,6 +188,12 @@ public final class TestMocks {
         }
 
         /**
+         * Mirrors {@code new ChromeDriver(ChromeOptions)}; the options are ignored.
+         */
+        public MockWebDriver(ChromeOptions options) {
+        }
+
+        /**
          * Returns a {@code button} with the text {@code "EU Region Header"}.
          */
         @Override

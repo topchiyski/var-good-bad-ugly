@@ -3,6 +3,8 @@ package com.acme.automation.ugly;
 import org.junit.jupiter.api.Test;
 
 import java.io.Serializable;
+import java.lang.constant.Constable;
+import java.lang.constant.ConstantDesc;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -25,16 +27,25 @@ class IntersectionTypeTrapTest {
         // List<Serializable & Comparable<? extends ...> & Constable & ConstantDesc>
         var inferredPayloads = List.of("hello", 1, 2.0);
 
+        // The proof is that these assignments compile without casts: each works only because
+        // the static element type is that intersection. If var had inferred Object, every
+        // line would need a cast. (A runtime instanceof check could not show this: it only
+        // sees that the element is a String.)
         var firstElement = inferredPayloads.get(0);
-        assertThat(firstElement)
-                .isInstanceOf(Serializable.class)
-                .isInstanceOf(Comparable.class);
+        Serializable asSerializable = firstElement;
+        Comparable<?> asComparable = firstElement;
+        Constable asConstable = firstElement;
+        ConstantDesc asConstantDesc = firstElement;
+
+        assertThat(List.of(asSerializable, asComparable, asConstable, asConstantDesc))
+                .containsOnly("hello");
 
         // JUNIOR TRAP: Wrapping that inferred list in an ArrayList prevents adding Map or Object later!
-        var trappedFuzzInputs = new ArrayList<>(List.of("hello", 1, 2.0));
-        // trappedFuzzInputs.add(Map.of("malformed", true)); // <-- COMPILE ERROR: Map is not Comparable!
-        // trappedFuzzInputs.add(new Object());              // <-- COMPILE ERROR!
-        assertThat(trappedFuzzInputs).hasSize(3);
+        // CompileTimeTrapTest compiles both commented lines below and asserts they are rejected.
+        var fuzzInputs = new ArrayList<>(List.of("hello", 1, 2.0));
+        // fuzzInputs.add(Map.of("malformed", true)); // <-- COMPILE ERROR: Map is not Comparable!
+        // fuzzInputs.add(new Object());              // <-- COMPILE ERROR!
+        assertThat(fuzzInputs).hasSize(3);
     }
 
     /**
