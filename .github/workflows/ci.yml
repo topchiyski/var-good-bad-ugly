@@ -1,0 +1,35 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    name: Tests (${{ matrix.os }})
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-java@v6
+        with:
+          distribution: temurin
+          java-version: '21'
+          cache: maven
+
+      # Each runner uses the wrapper script its OS ships, so both README instructions stay tested.
+      - name: Run tests (mvnw)
+        if: runner.os != 'Windows'
+        run: ./mvnw -B --no-transfer-progress clean test
+
+      - name: Run tests (mvnw.cmd)
+        if: runner.os == 'Windows'
+        run: .\mvnw.cmd -B --no-transfer-progress clean test
