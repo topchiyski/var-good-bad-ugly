@@ -319,11 +319,14 @@ public final class TestMocks {
         }
 
         /**
-         * Returns a canned orders-by-region map, regardless of the type token.
-         * The real method returns {@code T}.
+         * Returns a canned orders-by-region map typed as {@code T}, like the real method.
+         * The return type comes from the type token, so {@code var} infers whatever the
+         * caller's {@link TypeRef} declares. The cast is unchecked: callers in this repo
+         * always ask for {@code Map<String, List<Map<String, Object>>>}.
          */
-        public <T> Map<String, List<Map<String, Object>>> as(TypeRef<T> typeRef) {
-            return Map.of("EU", List.of(Map.of("orderId", 101, "status", "SHIPPED")));
+        @SuppressWarnings("unchecked")
+        public <T> T as(TypeRef<T> typeRef) {
+            return (T) Map.of("EU", List.of(Map.of("orderId", 101, "status", "SHIPPED")));
         }
     }
 
