@@ -2,13 +2,13 @@
 
 [![CI](https://github.com/topchiyski/var-good-bad-ugly/actions/workflows/ci.yml/badge.svg)](https://github.com/topchiyski/var-good-bad-ugly/actions/workflows/ci.yml)
 
-This repository is a complementary resource to my LinkedIn article [Why Your Java `var` Code Fails Code Review](https://www.linkedin.com/pulse/why-your-java-var-code-fails-review-stoyan-topchiyski-xwome). It contains runnable Java 21 examples of where `var` helps, where it hurts, and where it infers a surprising type.
+This repository is a complementary resource to my LinkedIn article [Why Your Java `var` Code Fails Code Review](https://www.linkedin.com/pulse/why-your-java-var-code-fails-review-stoyan-topchiyski-xwome). It contains runnable Java 25 examples of where `var` helps, where it hurts, and where it infers a surprising type.
 
 Tag [`v1.0.0`](https://github.com/topchiyski/var-good-bad-ugly/tree/v1.0.0) is the version that was current when the article was published.
 
 ## Setup
 
-- JDK 21 or later
+- JDK 25 or later
 - Internet access on the first run to download Maven and dependencies
 - On Windows, set `JAVA_HOME` to your JDK installation directory
 
